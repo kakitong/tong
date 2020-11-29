@@ -1197,6 +1197,68 @@ fi
  # VPS Menu script v1.0
  ConfMenu
  
+# Install VNSTAT
+apt-get install vnstat -y
+cd /home/vps/public_html/
+wget https://raw.githubusercontent.com/GegeEmbrie/autosshvpn/master/file/vnstat_php_frontend-1.5.1.tar.gz
+tar xf vnstat_php_frontend-1.5.1.tar.gz
+rm vnstat_php_frontend-1.5.1.tar.gz
+mv vnstat_php_frontend-1.5.1 vnstat
+cd vnstat
+if [[ `ifconfig -a | grep "venet0"` ]]
+then
+cekvirt='OpenVZ'
+elif [[ `ifconfig -a | grep "venet0:0"` ]]
+then
+cekvirt='OpenVZ'
+elif [[ `ifconfig -a | grep "venet0:0-00"` ]]
+then
+cekvirt='OpenVZ'
+elif [[ `ifconfig -a | grep "venet0-00"` ]]
+then
+cekvirt='OpenVZ'
+elif [[ `ifconfig -a | grep "eth0"` ]]
+then
+cekvirt='KVM'
+elif [[ `ifconfig -a | grep "eth0:0"` ]]
+then
+cekvirt='KVM'
+elif [[ `ifconfig -a | grep "eth0:0-00"` ]]
+then
+cekvirt='KVM'
+elif [[ `ifconfig -a | grep "eth0-00"` ]]
+then
+cekvirt='KVM'
+fi
+if [ $cekvirt = 'KVM' ]; then
+	sed -i 's/eth0/eth0/g' config.php
+	sed -i "s/\$iface_list = array('eth0', 'sixxs');/\$iface_list = array('eth0');/g" config.php
+	sed -i "s/\$language = 'nl';/\$language = 'en';/g" config.php
+	sed -i 's/Internal/Internet/g' config.php
+	sed -i '/SixXS IPv6/d' config.php
+	cd
+elif [ $cekvirt = 'OpenVZ' ]; then
+	sed -i 's/eth0/venet0/g' config.php
+	sed -i "s/\$iface_list = array('venet0', 'sixxs');/\$iface_list = array('venet0');/g" config.php
+	sed -i "s/\$language = 'nl';/\$language = 'en';/g" config.php
+	sed -i 's/Internal/Internet/g' config.php
+	sed -i '/SixXS IPv6/d' config.php
+	cd
+else
+	cd
+fi
+
+# Install BadVPN
+apt-get -y install cmake make gcc
+wget https://raw.githubusercontent.com/tinasetina/9/master/badvpn-1.999.127.tar.bz2
+tar xf badvpn-1.999.127.tar.bz2
+mkdir badvpn-build
+cd badvpn-build
+cmake ~/badvpn-1.999.127 -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1
+make install
+screen badvpn-udpgw --listen-addr 127.0.0.1:7300 > /dev/null &
+cd
+
  # Setting server local time
  ln -fs /usr/share/zoneinfo/$MyVPS_Time /etc/localtime
  
