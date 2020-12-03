@@ -44,32 +44,6 @@ sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
 sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=442/g' /etc/default/dropbear
 echo "/bin/false" >> /etc/shells
 
-# install privoxy
-cat > /etc/privoxy/config <<-END
-user-manual /usr/share/doc/privoxy/user-manual
-confdir /etc/privoxy
-logdir /var/log/privoxy
-filterfile default.filter
-logfile logfile
-listen-address  0.0.0.0:3356
-listen-address  0.0.0.0:8086
-toggle  1
-enable-remote-toggle  0
-enable-remote-http-toggle  0
-enable-edit-actions 0
-enforce-blocks 0
-buffer-limit 4096
-enable-proxy-authentication-forwarding 1
-forwarded-connect-retries  1
-accept-intercepted-requests 1
-allow-cgi-request-crunching 1
-split-large-forms 0
-keep-alive-timeout 5
-tolerate-pipelining 1
-socket-timeout 300
-permit-access 0.0.0.0/0 xxxxxxxxx
-END
-sed -i $MYIP2 /etc/privoxy/config;
 
 # Skuid
 https://raw.githubusercontent.com/ndndndn/CodesX/main/sq3.sh
